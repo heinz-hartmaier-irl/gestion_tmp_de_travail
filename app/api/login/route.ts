@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import mysql from "mysql2/promise";
+import { sign } from "jsonwebtoken";
 
 export async function POST(req: Request) {
   try {
@@ -13,9 +14,9 @@ export async function POST(req: Request) {
     // Connexion à ta BDD MySQL locale
     const connection = await mysql.createConnection({
       host: "localhost",
-      port: 8889, // d’après ton SQL dump
+      port: 3306, // d’après ton SQL dump
       user: "root", // à adapter selon ton environnement
-      password: "root", // idem
+      password: "", // idem
       database: "gestion_tmp_travail",
     });
 

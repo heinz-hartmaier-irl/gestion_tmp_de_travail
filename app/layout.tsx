@@ -1,6 +1,15 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Poppins, Modak } from "next/font/google";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import "./globals.css";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,6 +48,22 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${modak.variable} antialiased`}
       >
+        <header
+        className="flex justify-between">
+          <div className="p-5 font-[modak] text-3xl text-[#000091]"><a href="/..">Gestion TMP</a></div>
+          <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center text-gray-700 text-2xl font-bold">
+                <DropdownMenu>
+                  <DropdownMenuTrigger>👤</DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuLabel>Mon profil</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem><a href="/profil">Page utilisateur</a></DropdownMenuItem>
+                    <DropdownMenuItem><a href="#">Demandes</a></DropdownMenuItem>
+                    <DropdownMenuItem><a href="#">Tableau de bord</a></DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+        </header>
         {children}
       </body>
     </html>
