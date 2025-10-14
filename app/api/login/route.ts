@@ -6,23 +6,20 @@ export async function POST(req: Request) {
   try {
     const { email, password } = await req.json();
 
-    // Vérification basique
     if (!email || !password) {
       return NextResponse.json({ error: "Champs manquants" }, { status: 400 });
     }
 
-    // Connexion à ta BDD MySQL locale
     const connection = await mysql.createConnection({
       host: "localhost",
-      port: 3306, // d’après ton SQL dump
-      user: "root", // à adapter selon ton environnement
-      password: "", // idem
+      port: 3306,
+      user: "root",
+      password: "",
       database: "gestion_tmp_travail",
     });
 
-    // Vérification de l'utilisateur
     const [rows]: any = await connection.execute(
-      "SELECT id_user, nom, prenom, mail, poste, mdp FROM user WHERE mail = ? LIMIT 1",
+      "SELECT id_user, nom, prenom, mail, poste, mdp, date_entree, solde_conge, solde_hsup, statut FROM user WHERE mail = ? LIMIT 1",
       [email]
     );
 
@@ -34,16 +31,32 @@ export async function POST(req: Request) {
 
     const user = rows[0];
 
-    // ⚠️ Pour l’instant tu compares le mot de passe en clair
-    // Mais il vaut mieux utiliser bcrypt si possible
     if (user.mdp !== password) {
       return NextResponse.json({ error: "Mot de passe incorrect" }, { status: 401 });
     }
 
-    // Si OK → tu retournes l’utilisateur (sans le mot de passe)
+    // 🔐 Création du JWT
+    const token = sign(
+      { id: user.id_user, mail: user.mail, poste: user.poste },
+      process.env.JWT_SECRET!,
+      { expiresIn: "1d" }
+    );
+
     const { mdp, ...userData } = user;
 
-    return NextResponse.json({ user: userData }, { status: 200 });
+    // 🍪 Définition du cookie
+    const response = NextResponse.json({ user: userData }, { status: 200 });
+    response.cookies.set({
+      name: "token",
+      value: token,
+      httpOnly: true,
+      sameSite: "strict",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: 24 * 60 * 60,
+    });
+
+    return response;
   } catch (err: any) {
     console.error("Erreur API login :", err);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });

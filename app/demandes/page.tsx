@@ -1,153 +1,200 @@
-"use client"
-import { Calendar } from "@/components/ui/calendar"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import * as React from "react"
-import { CheckIcon, ChevronsUpDownIcon } from "lucide-react"
- 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+"use client";
+
+import { useEffect, useState } from "react";
+import { Calendar } from "@/components/ui/calendar";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { format } from "date-fns";
 import {
   Command,
   CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
-  CommandList,
-} from "@/components/ui/command"
+} from "@/components/ui/command";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
- 
-const frameworks = [
-  {
-    value: "next.js",
-    label: "Next.js",
-  },
-  {
-    value: "sveltekit",
-    label: "SvelteKit",
-  },
-  {
-    value: "nuxt.js",
-    label: "Nuxt.js",
-  },
-  {
-    value: "remix",
-    label: "Remix",
-  },
-  {
-    value: "astro",
-    label: "Astro",
-  },
-]
- 
+  Popover as ComboPopover,
+  PopoverContent as ComboPopoverContent,
+  PopoverTrigger as ComboPopoverTrigger,
+} from "@/components/ui/popover";
+import { ChevronsUpDown } from "lucide-react";
+
+const demandeTypes = [
+  { value: "conge", label: "Congé" },
+  { value: "maladie", label: "Arrêt maladie" },
+  { value: "hsup", label: "Heures supplémentaires" },
+];
 
 export default function DemandesPage() {
-    const [open, setOpen] = React.useState(false)
-    const [value, setValue] = React.useState("")
-    const [date, setDate] = React.useState<Date | undefined>(new Date())
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [startDate, setStartDate] = useState<Date | undefined>(new Date());
+  const [endDate, setEndDate] = useState<Date | undefined>(new Date());
+  const [justificatif, setJustificatif] = useState<File | null>(null);
+  const [openType, setOpenType] = useState(false);
+  const [selectedType, setSelectedType] = useState<string>("");
+
+  useEffect(() => {
+    const fetchProfil = async () => {
+      try {
+        const res = await fetch("/api/profil", { method: "GET", credentials: "include" });
+        const data = await res.json();
+        if (res.ok) setUser(data.user);
+      } catch (err) {
+        console.error("Erreur fetch profil:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfil();
+  }, []);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) setJustificatif(e.target.files[0]);
+  };
+
+  const handleSubmit = async () => {
+  if (!selectedType || !startDate || !endDate) {
+    alert("Veuillez remplir tous les champs !");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("type", selectedType);
+  formData.append("startDate", startDate.toISOString());
+  formData.append("endDate", endDate.toISOString());
+  if (justificatif) formData.append("justificatif", justificatif);
+  // formData.append("userId", user?.id);
+
+  try {
+    const res = await fetch("/api/demande", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      alert("Demande enregistrée avec succès !");
+    } else {
+      alert("Erreur lors de l’envoi de la demande.");
+    }
+  } catch (err) {
+    console.error("Erreur requête:", err);
+    alert("Erreur de communication avec le serveur.");
+  }
+};
+
+
+  if (loading) return <p className="text-center mt-10">Chargement...</p>;
+  if (!user) return <p className="text-center mt-10 text-red-500">Non connecté</p>;
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gray-100 p-10">
-      <h1 className="text-4xl mb-4 font-[modak] text-[#000091]">
-        Demandes
-      </h1>
+      <h1 className="text-4xl mb-4 font-[modak] text-[#000091]">Demandes</h1>
 
       <div className="flex flex-col md:flex-row w-full max-w-4xl bg-gray-200 rounded-2xl shadow-lg overflow-hidden">
+        {/* Partie gauche : formulaire */}
         <div className="flex-1 bg-gray-300 p-8 flex flex-col justify-center">
           <div className="space-y-5 text-lg">
-            <div className="flex flex-col">
-                  <Popover open={open} onOpenChange={setOpen}>
-                            <PopoverTrigger asChild>
-                                <Button
-                                variant="outline"
-                                role="combobox"
-                                aria-expanded={open}
-                                className="w-[200px] justify-between"
-                                >
-                                {value
-                                    ? frameworks.find((framework) => framework.value === value)?.label
-                                    : "Select framework..."}
-                                <ChevronsUpDown className="opacity-50" />
-                                </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-[200px] p-0">
-                                <Command>
-                                <CommandInput placeholder="Search framework..." className="h-9" />
-                                <CommandList>
-                                    <CommandEmpty>No framework found.</CommandEmpty>
-                                    <CommandGroup>
-                                    {frameworks.map((framework) => (
-                                        <CommandItem
-                                        key={framework.value}
-                                        value={framework.value}
-                                        onSelect={(currentValue) => {
-                                            setValue(currentValue === value ? "" : currentValue)
-                                            setOpen(false)
-                                        }}
-                                        >
-                                        {framework.label}
-                                        <Check
-                                            className={cn(
-                                            "ml-auto",
-                                            value === framework.value ? "opacity-100" : "opacity-0"
-                                            )}
-                                        />
-                                        </CommandItem>
-                                    ))}
-                                    </CommandGroup>
-                                </CommandList>
-                                </Command>
-                            </PopoverContent>
-                            </Popover>
-                        )
-                    }
+            {/* Type de demande */}
+            <div className="flex flex-col mb-4">
+              <Label className="font-[modak] text-gray-700 mb-2">Type de demande</Label>
+              <ComboPopover open={openType} onOpenChange={setOpenType}>
+                <ComboPopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    className="w-3/4 justify-between bg-gray-400 text-white hover:bg-gray-500"
+                  >
+                    {selectedType
+                      ? demandeTypes.find((t) => t.value === selectedType)?.label
+                      : "Sélectionnez un type"}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
+                  </Button>
+                </ComboPopoverTrigger>
+                <ComboPopoverContent className="w-3/4 p-0 bg-white text-gray-800 rounded-lg shadow-md">
+                  <Command>
+                    <CommandInput placeholder="Rechercher un type..." />
+                    <CommandEmpty>Aucun résultat.</CommandEmpty>
+                    <CommandGroup className="w-3/4 p-0 bg-white text-gray-800 rounded-lg shadow-md">
+                      {demandeTypes.map((t) => (
+                        <CommandItem
+                          key={t.value}
+                          onSelect={() => {
+                            setSelectedType(t.value);
+                            setOpenType(false);
+                          }}
+                        >
+                          {t.label}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </Command>
+                </ComboPopoverContent>
+              </ComboPopover>
             </div>
 
+            {/* Dates affichées */}
             <div className="flex flex-col">
               <span className="font-[modak] text-gray-700">Début :</span>
-              <span className="bg-gray-400 font-[poppins] text-white px-3 py-2 rounded-md w-3/4"></span>
-              <span className="font-[modak] text-gray-700">Fin :</span>
-              <span className="bg-gray-400 font-[poppins] text-white px-3 py-2 rounded-md w-3/4"></span>
+              <span className="bg-gray-400 font-[poppins] text-white px-3 py-2 rounded-md w-3/4">
+                {startDate ? format(startDate, "dd/MM/yyyy") : ""}
+              </span>
+
+              <span className="font-[modak] text-gray-700 mt-2">Fin :</span>
+              <span className="bg-gray-400 font-[poppins] text-white px-3 py-2 rounded-md w-3/4">
+                {endDate ? format(endDate, "dd/MM/yyyy") : ""}
+              </span>
             </div>
 
+            {/* Justificatif */}
             <div className="flex flex-col">
-                <div className="grid w-full max-w-sm items-center gap-3">
-                    <Label htmlFor="justificatif">Justificatif</Label>
-                    <Input id="justificatif" type="file" />
-                </div>
+              <Label htmlFor="justificatif" className="font-[modak] text-gray-700">
+                Justificatif
+              </Label>
+              <Input
+                id="justificatif"
+                type="file"
+                onChange={handleFileChange}
+                className="w-3/4 mt-2"
+              />
             </div>
 
+            {/* Bouton d’envoi */}
             <div className="flex flex-col">
-              <Button>Button</Button>
-            </div>
-
-            <div className="flex flex-col">
-              <Button>Envoyer</Button>
+              <Button onClick={handleSubmit} className="bg-[#000091] text-white hover:bg-[#2a2ab3]">
+                Envoyer la demande
+              </Button>
             </div>
           </div>
         </div>
 
-
+        {/* Partie droite : calendrier */}
         <div className="flex-1 bg-gray-400 text-white flex flex-col justify-center items-center p-8">
           <div className="flex flex-col items-center bg-gray-500 p-6 rounded-xl w-3/4 shadow-inner">
             <div className="flex flex-col items-center mb-4">
               <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center text-gray-700 text-2xl font-bold">
-                👤
+                📅
               </div>
-              
-              <h2 className="font-[poppins] mt-3 text-xl font-semibold">Statut</h2>
+              <h2 className="font-[poppins] mt-3 text-xl font-semibold">
+                Veuillez sélectionner une date
+              </h2>
             </div>
-
-            <div className="w-full bg-gray-300 text-gray-800 p-4 rounded-lg">
-              <p className="font-medium font-[poppins]">Solde heures supp :</p>
-              <div className="bg-gray-100 rounded-md px-3 py-2 mb-3">10h</div>
-
-              <p className="font-medium font-[poppins]">Solde congés :</p>
-              <div className="bg-gray-100 rounded-md px-3 py-2">25 jours</div>
+            
+           <div className="dark bg-gray-700 text-white rounded-lg p-4 w-full">
+              <Calendar
+                mode="range"
+                className="w-full rounded-md bg-gray-700 text-white border border-gray-600"
+                selected={{ from: startDate, to: endDate }}
+                onSelect={(range) => {
+                  if (range) {
+                    setStartDate(range.from || undefined);
+                    setEndDate(range.to || undefined);
+                  }
+                }}
+              />
             </div>
           </div>
         </div>
