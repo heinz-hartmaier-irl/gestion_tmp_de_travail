@@ -14,7 +14,7 @@ export async function GET() {
 
     const decoded: any = verify(token, process.env.JWT_SECRET!);
     const userId = decoded.id;
-    const userRole = decoded.poste; // 'admin' ou 'user'
+    const userRole = decoded.poste; 
 
     const connection = await mysql.createConnection({
       host: "localhost",

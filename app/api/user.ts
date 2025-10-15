@@ -1,15 +1,21 @@
-import { NextResponse, NextRequest } from "next/server";
 import mysql from "mysql2/promise";
 import { verify } from "jsonwebtoken";
+import { NextApiRequest, NextApiResponse } from "next";
 
-export async function GET(req: NextRequest) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== "GET") {
+    return res.status(405).json({ error: "Méthode non autorisée" });
+  }
+
   try {
-    // Récupérer le cookie "token"
-    const cookieHeader = req.headers.get("cookie") || "";
+    // 🔐 Récupération du token depuis le cookie
+    const cookieHeader = req.headers.cookie || "";
     const match = cookieHeader.match(/(^|;)\s*token=([^;]+)/);
     const token = match ? match[2] : null;
 
-    if (!token) return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+    if (!token) {
+      return res.status(401).json({ error: "Non authentifié" });
+    }
 
     const decoded: any = verify(token, process.env.JWT_SECRET!);
 
@@ -21,18 +27,24 @@ export async function GET(req: NextRequest) {
       database: "gestion_tmp_travail",
     });
 
-    const [rows]: any = await connection.execute(
-      "SELECT id_user, nom, prenom, mail, poste FROM user WHERE id_user = ? LIMIT 1",
+    // 👤 Récupération de l’utilisateur connecté
+    const [userRows]: any = await connection.execute(
+      "SELECT id_user, nom, prenom, mail, poste, statut, date_entree, solde_conge, solde_hsup FROM user WHERE id_user = ? LIMIT 1",
       [decoded.id]
     );
 
+    if (userRows.length === 0) {
+      await connection.end();
+      return res.status(404).json({ error: "Utilisateur non trouvé" });
+    }
+
     await connection.end();
 
-    if (rows.length === 0) return NextResponse.json({ error: "Utilisateur non trouvé" }, { status: 404 });
-
-    return NextResponse.json({ user: rows[0] });
-  } catch (err) {
-    console.error(err);
-    return NextResponse.json({ error: "Token invalide" }, { status: 401 });
+    return res.status(200).json({
+      user: userRows[0],
+    });
+  } catch (err: any) {
+    console.error("Erreur API /user :", err);
+    return res.status(500).json({ error: "Erreur serveur ou token invalide" });
   }
 }

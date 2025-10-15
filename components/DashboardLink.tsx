@@ -15,5 +15,17 @@ export default function DashboardLink() {
 
   if (!role) return null;
 
-  return <Link href={role === "admin" ? "/dashboard-admin" : "/dashboard-user"}>Tableau de bord</Link>;
+  return (
+    <div>
+      <Link href={role === "admin" ? "/dashboard-admin" : "/dashboard-user"}>
+        Tableau de bord
+      </Link>
+
+      {(role === "admin" || role === "RH") && (
+        <div style={{ marginTop: "0.5rem" }}>
+          <Link href="/user-setting">Gestion des utilisateurs</Link>
+        </div>
+      )}
+    </div>
+  );
 }
