@@ -31,7 +31,7 @@ export default function DemandesPage() {
   const [loading, setLoading] = useState(true);
   const [startDate, setStartDate] = useState<Date | undefined>(new Date());
   const [endDate, setEndDate] = useState<Date | undefined>(new Date());
-  const [justificatif, setJustificatif] = useState<File | null>(null);
+  const [justificatif, setJustificatif] = useState<File | string | null>(null);
   const [openType, setOpenType] = useState(false);
   const [selectedType, setSelectedType] = useState<string>("");
 
@@ -47,7 +47,6 @@ export default function DemandesPage() {
         setLoading(false);
       }
     };
-
     fetchProfil();
   }, []);
 
@@ -56,36 +55,40 @@ export default function DemandesPage() {
   };
 
   const handleSubmit = async () => {
-  if (!selectedType || !startDate || !endDate) {
-    alert("Veuillez remplir tous les champs !");
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append("type", selectedType);
-  formData.append("startDate", startDate.toISOString());
-  formData.append("endDate", endDate.toISOString());
-  if (justificatif) formData.append("justificatif", justificatif);
-  // formData.append("userId", user?.id);
-
-  try {
-    const res = await fetch("/api/demande", {
-      method: "POST",
-      body: formData,
-    });
-
-    const data = await res.json();
-    if (data.success) {
-      alert("Demande enregistrée avec succès !");
-    } else {
-      alert("Erreur lors de l’envoi de la demande.");
+    if (!selectedType || !startDate || !endDate) {
+      alert("Veuillez remplir tous les champs !");
+      return;
     }
-  } catch (err) {
-    console.error("Erreur requête:", err);
-    alert("Erreur de communication avec le serveur.");
-  }
-};
 
+    const formData = new FormData();
+    formData.append("type", selectedType);
+    formData.append("startDate", startDate.toISOString());
+    formData.append("endDate", endDate.toISOString());
+
+    // Gestion dynamique du justificatif
+    if (selectedType === "hsup" && typeof justificatif === "string") {
+      formData.append("justificatif", justificatif); // texte
+    } else if (selectedType === "maladie" && justificatif instanceof File) {
+      formData.append("justificatif", justificatif); // fichier
+    }
+    // pour congé, rien n'est ajouté
+
+    try {
+      const res = await fetch("/api/demande", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("Demande enregistrée avec succès !");
+      } else {
+        alert("Erreur lors de l’envoi de la demande.");
+      }
+    } catch (err) {
+      console.error("Erreur requête:", err);
+      alert("Erreur de communication avec le serveur.");
+    }
+  };
 
   if (loading) return <p className="text-center mt-10">Chargement...</p>;
   if (!user) return <p className="text-center mt-10 text-red-500">Non connecté</p>;
@@ -124,6 +127,7 @@ export default function DemandesPage() {
                           key={t.value}
                           onSelect={() => {
                             setSelectedType(t.value);
+                            setJustificatif(null); // reset le justificatif à chaque changement
                             setOpenType(false);
                           }}
                         >
@@ -149,17 +153,31 @@ export default function DemandesPage() {
               </span>
             </div>
 
-            {/* Justificatif */}
+            {/* Justificatif dynamique */}
             <div className="flex flex-col">
               <Label htmlFor="justificatif" className="font-[modak] text-gray-700">
                 Justificatif
               </Label>
-              <Input
-                id="justificatif"
-                type="file"
-                onChange={handleFileChange}
-                className="w-3/4 mt-2"
-              />
+
+              {selectedType === "hsup" ? (
+                <Input
+                  id="justificatif_hsup"
+                  type="text"
+                  placeholder="Indiquez la nature des heures supplémentaires"
+                  value={typeof justificatif === "string" ? justificatif : ""}
+                  onChange={(e) => setJustificatif(e.target.value)}
+                  className="w-3/4 mt-2"
+                />
+              ) : selectedType === "conge" ? (
+                <span className="text-gray-500 mt-2">Pas de justificatif nécessaire pour les congés</span>
+              ) : (
+                <Input
+                  id="justificatif_file"
+                  type="file"
+                  onChange={handleFileChange}
+                  className="w-3/4 mt-2"
+                />
+              )}
             </div>
 
             {/* Bouton d’envoi */}
@@ -183,7 +201,7 @@ export default function DemandesPage() {
               </h2>
             </div>
             
-           <div className="dark bg-gray-700 text-white rounded-lg p-4 w-full">
+            <div className="dark bg-gray-700 text-white rounded-lg p-4 w-full">
               <Calendar
                 mode="range"
                 className="w-full rounded-md bg-gray-700 text-white border border-gray-600"

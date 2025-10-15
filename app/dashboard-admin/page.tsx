@@ -98,7 +98,9 @@ useEffect(() => {
             {/* Justificatif */}
             <div className="flex flex-col w-1/6 items-center">
               <span className="font-semibold mb-1">Justificatif :</span>
-              {d.justificatif ? (
+              {d.justificatif === "Justificatif non nécessaire" ? (
+                <span className="text-gray-200 italic">{d.justificatif}</span>
+              ) : d.justificatif ? (
                 <a
                   href={d.justificatif}
                   download
@@ -112,7 +114,6 @@ useEffect(() => {
                 <span className="text-gray-300 italic">Aucun</span>
               )}
             </div>
-
             {/* Actions */}
             <div className="flex flex-col space-y-2 w-1/6 items-center">
               <button

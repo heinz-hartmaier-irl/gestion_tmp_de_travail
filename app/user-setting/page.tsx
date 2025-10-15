@@ -90,7 +90,7 @@ const handleUpdate = async (userId: number, field: "solde_hsup" | "solde_conge")
               <th className="border px-4 py-2 text-left">Poste</th>
               <th className="border px-4 py-2 text-center">Heures supp</th>
               <th className="border px-4 py-2 text-center">Congés restants</th>
-              <th className="border px-4 py-2 text-center">Dernière demande</th>
+              <th className="border px-4 py-2 text-center">Date de la demande</th>
               <th className="border px-4 py-2 text-center">Statut</th>
               <th className="border px-4 py-2 text-center">Actions</th>
             </tr>
