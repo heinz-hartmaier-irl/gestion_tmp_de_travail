@@ -27,23 +27,23 @@ export default function DashboardAdminPage() {
   const [demandes, setDemandes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-useEffect(() => {
-  const fetchDashboard = async () => {
-    try {
-      const res = await fetch("/api/dashboard", { credentials: "include" });
-      const data = await res.json();
-      console.log("Données reçues du backend:", data); 
-      if (data.success) setDemandes(data.demandes);
-      else alert(data.error || "Erreur lors du chargement du dashboard.");
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    const fetchDashboard = async () => {
+      try {
+        const res = await fetch("/api/dashboard", { credentials: "include" });
+        const data = await res.json();
+        console.log("Données reçues du backend:", data);
+        if (data.success) setDemandes(data.demandes);
+        else alert(data.error || "Erreur lors du chargement du dashboard.");
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  fetchDashboard();
-}, []);
+    fetchDashboard();
+  }, []);
 
   if (loading) return <p>Chargement du dashboard...</p>;
 
@@ -87,8 +87,8 @@ useEffect(() => {
                   d.statut_demande === "en attente"
                     ? "text-yellow-300"
                     : d.statut_demande === "acceptée"
-                    ? "text-green-400"
-                    : "text-red-400"
+                      ? "text-green-400"
+                      : "text-red-400"
                 }
               >
                 {d.statut_demande}

@@ -200,7 +200,7 @@ export default function DemandesPage() {
                 Veuillez sélectionner une date
               </h2>
             </div>
-            
+
             <div className="dark bg-gray-700 text-white rounded-lg p-4 w-full">
               <Calendar
                 mode="range"

@@ -1,14 +1,22 @@
 import { NextResponse } from "next/server";
 import mysql from "mysql2/promise";
-import { sign } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
+import { loginSchema } from "@/lib/authentification/autSchema";
 
 export async function POST(req: Request) {
   try {
-    const { email, password } = await req.json();
+    const body = await req.json();
 
-    if (!email || !password) {
-      return NextResponse.json({ error: "Champs manquants" }, { status: 400 });
+
+    const parsed = loginSchema.safeParse(body);
+    if (!parsed.success) {
+      const errors = parsed.error.flatten().fieldErrors;
+      return NextResponse.json({ success: false, errors }, { status: 400 });
     }
+
+    const { email, password } = parsed.data;
+
 
     const connection = await mysql.createConnection({
       host: "localhost",
@@ -18,47 +26,49 @@ export async function POST(req: Request) {
       database: "gestion_tmp_travail",
     });
 
-    const [rows]: any = await connection.execute(
-      "SELECT id_user, nom, prenom, mail, poste, mdp, date_entree, solde_conge, solde_hsup, statut FROM user WHERE mail = ? LIMIT 1",
-      [email]
-    );
-
+    const [rows]: any = await connection.execute("SELECT * FROM user WHERE mail = ?", [email]);
     await connection.end();
 
     if (rows.length === 0) {
-      return NextResponse.json({ error: "Utilisateur non trouvé" }, { status: 401 });
+      return NextResponse.json({ success: false, error: "Utilisateur introuvable" }, { status: 404 });
     }
 
     const user = rows[0];
+    const isPasswordValid = await bcrypt.compare(password, user.mdp);
 
-    if (user.mdp !== password) {
-      return NextResponse.json({ error: "Mot de passe incorrect" }, { status: 401 });
+    if (!isPasswordValid) {
+      return NextResponse.json({ success: false, error: "Mot de passe incorrect" }, { status: 401 });
     }
 
-    // 🔐 Création du JWT
-    const token = sign(
-      { id: user.id_user, mail: user.mail, poste: user.poste },
+    // 🔹 JWT
+    const token = jwt.sign(
+      { id: user.id_user, email: user.email, poste: user.poste },
       process.env.JWT_SECRET!,
-      { expiresIn: "1d" }
+      { expiresIn: "2h" }
     );
+    const response = NextResponse.json({
+      success: true,
+      message: "Connexion réussie",
+      user: {
+        id: user.id_user,
+        nom: user.nom,
+        prenom: user.prenom,
+        email: user.mail,
+        poste: user.poste,
+        photo: user.photo,
+      },
+    });
 
-    const { mdp, ...userData } = user;
-
-    // 🍪 Définition du cookie
-    const response = NextResponse.json({ user: userData }, { status: 200 });
-    response.cookies.set({
-      name: "token",
-      value: token,
+    response.cookies.set("token", token, {
       httpOnly: true,
-      sameSite: "strict",
       secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
       path: "/",
-      maxAge: 24 * 60 * 60,
     });
 
     return response;
-  } catch (err: any) {
-    console.error("Erreur API login :", err);
-    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
+  } catch (err) {
+    console.error("Erreur API login:", err);
+    return NextResponse.json({ success: false, error: "Erreur serveur" }, { status: 500 });
   }
 }

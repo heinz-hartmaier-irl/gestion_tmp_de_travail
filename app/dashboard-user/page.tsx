@@ -139,8 +139,8 @@ export default function DashboardUserPage() {
                   d.statut_demande === "en attente"
                     ? "text-yellow-300"
                     : d.statut_demande === "acceptée"
-                    ? "text-green-400"
-                    : "text-red-400"
+                      ? "text-green-400"
+                      : "text-red-400"
                 }
               >
                 {d.statut_demande}

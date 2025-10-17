@@ -35,7 +35,7 @@ export default function LoginForm() {
 
       // 👉 Redirection selon le poste
       const poste = data.user.poste.toLowerCase();
-      if (poste === "admin" || poste === "rh") {
+      if (poste === "admin" || poste === "RH") {
         router.push("/dashboard-admin");
       } else {
         router.push("/dashboard-user");
