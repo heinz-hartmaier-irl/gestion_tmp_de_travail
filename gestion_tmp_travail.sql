@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : localhost:8889
--- Généré le : mar. 14 oct. 2025 à 14:01
+-- Généré le : ven. 17 oct. 2025 à 07:53
 -- Version du serveur : 8.0.35
 -- Version de PHP : 8.2.20
 
@@ -53,9 +53,9 @@ CREATE TABLE `demande` (
 --
 
 INSERT INTO `demande` (`id_demande`, `id_user`, `type`, `date_demande`, `date_debut`, `date_fin`, `statut_demande`) VALUES
-(1, 1, 'Arrêt Maladie', '2025-10-15', '2025-10-21', '2025-10-28', 'En Attente'),
-(3, 2, 'Congés Payés', '2025-10-15', '2025-10-16', '2025-10-23', 'Refusée'),
-(4, 3, 'Heures Supplémentaire', '2025-10-14', '2025-10-21', '2025-10-28', 'Acceptée');
+(1, 1, 'Arrêt Maladie', '2025-11-12', '2025-11-19', '2025-11-26', 'Acceptée'),
+(3, 2, 'Congés Payés', '2025-10-15', '2025-10-16', '2025-10-23', 'En Attente'),
+(4, 3, 'Heures Supplémentaire', '2025-10-14', '2025-10-21', '2025-10-28', 'En Attente');
 
 -- --------------------------------------------------------
 
@@ -73,6 +73,18 @@ CREATE TABLE `hsup_spec` (
 -- --------------------------------------------------------
 
 --
+-- Structure de la table `justif_h_supp`
+--
+
+CREATE TABLE `justif_h_supp` (
+  `id` int NOT NULL,
+  `id_user` int NOT NULL,
+  `texte_justif` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Structure de la table `maladie_spec`
 --
 
@@ -86,7 +98,7 @@ CREATE TABLE `maladie_spec` (
 --
 
 INSERT INTO `maladie_spec` (`id_demande`, `justificatif`) VALUES
-(1, '/justif/linkedin.jpg');
+(1, '/justificatif/linkedin.jpg');
 
 -- --------------------------------------------------------
 
@@ -104,7 +116,7 @@ CREATE TABLE `user` (
   `date_entree` date DEFAULT NULL,
   `solde_conge` int DEFAULT '0',
   `solde_hsup` int DEFAULT '0',
-  `photo` varchar(255) COLLATE utf8mb4_general_ci DEFAULT 'uploads/default.png',
+  `photo` varchar(255) COLLATE utf8mb4_general_ci DEFAULT '/uploads/default.jpeg',
   `mdp` varchar(255) COLLATE utf8mb4_general_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -114,8 +126,8 @@ CREATE TABLE `user` (
 
 INSERT INTO `user` (`id_user`, `nom`, `prenom`, `mail`, `statut`, `poste`, `date_entree`, `solde_conge`, `solde_hsup`, `photo`, `mdp`) VALUES
 (1, 'Letellier', 'Ioni', 'ioni.letell@gmail.com', 'au travail', 'admin', '2024-09-09', 25, 10, '/uploads/linkedin.jpg', 'Ioni2012$'),
-(2, 'user', 'user', 'ioio@ze-com.com', 'au travail', 'RH', '2024-09-09', 25, 10, 'uploads/default.png', 'root'),
-(3, 'user', 'user', 'user@gmail.com', 'au travail', 'salarié', '2024-09-09', 10, 20, 'uploads/default.png', 'root');
+(2, 'user', 'user', 'ioio@ze-com.com', 'au travail', 'RH', '2024-09-09', 25, 10, '/uploads/default.jpeg', 'root'),
+(3, 'user', 'user', 'user@gmail.com', 'au travail', 'salarié', '2024-09-09', 10, 20, '/uploads/default.jpeg', 'root');
 
 --
 -- Index pour les tables déchargées
@@ -141,6 +153,13 @@ ALTER TABLE `hsup_spec`
   ADD PRIMARY KEY (`id_demande`);
 
 --
+-- Index pour la table `justif_h_supp`
+--
+ALTER TABLE `justif_h_supp`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `id_user` (`id_user`);
+
+--
 -- Index pour la table `maladie_spec`
 --
 ALTER TABLE `maladie_spec`
@@ -162,6 +181,12 @@ ALTER TABLE `user`
 --
 ALTER TABLE `demande`
   MODIFY `id_demande` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT pour la table `justif_h_supp`
+--
+ALTER TABLE `justif_h_supp`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT pour la table `user`
@@ -190,6 +215,12 @@ ALTER TABLE `demande`
 --
 ALTER TABLE `hsup_spec`
   ADD CONSTRAINT `hsup_spec_ibfk_1` FOREIGN KEY (`id_demande`) REFERENCES `demande` (`id_demande`) ON DELETE CASCADE;
+
+--
+-- Contraintes pour la table `justif_h_supp`
+--
+ALTER TABLE `justif_h_supp`
+  ADD CONSTRAINT `justif_h_supp_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `user` (`id_user`);
 
 --
 -- Contraintes pour la table `maladie_spec`

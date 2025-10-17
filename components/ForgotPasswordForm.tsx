@@ -1,45 +1,35 @@
 'use client';
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
 
-
-export default function LoginForm() {
-  const router = useRouter();
+export default function ForgotPasswordForm() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
+    setMessage("");
 
     try {
-      const res = await fetch("/api/login", {
+      const res = await fetch("/api/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || "Erreur de connexion");
-        setLoading(false);
-        return;
-      }
-
-      const poste = data.user.poste.toLowerCase();
-      if (poste === "admin" || poste === "rh") {
-        router.push("/dashboard-admin");
+        setError(data.error || "Erreur lors de la demande");
       } else {
-        router.push("/dashboard-user");
+        setMessage(data.message);
       }
     } catch (err) {
-      console.error("Erreur :", err);
+      console.error(err);
       setError("Une erreur est survenue");
     } finally {
       setLoading(false);
@@ -49,18 +39,22 @@ export default function LoginForm() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#f0f2f8]">
       <div className="w-full max-w-md rounded-2xl bg-white shadow-xl p-10 relative overflow-hidden">
-        {/* Dégradé en arrière-plan */}
         <div className="absolute -top-16 -right-16 w-40 h-40 bg-[#000091] rounded-full opacity-20"></div>
         <div className="absolute -bottom-16 -left-16 w-40 h-40 bg-[#ff6400] rounded-full opacity-20"></div>
 
         <h2 className="mb-8 text-center text-4xl font-[Modak] text-[#000091]">
-          Ze-Gestion des Congés
+          Réinitialiser le mot de passe
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {error && (
             <div className="rounded-lg bg-red-500 p-3 text-center text-sm font-[poppins] text-white shadow-sm">
               {error}
+            </div>
+          )}
+          {message && (
+            <div className="rounded-lg bg-green-500 p-3 text-center text-sm font-[poppins] text-white shadow-sm">
+              {message}
             </div>
           )}
 
@@ -82,41 +76,12 @@ export default function LoginForm() {
             />
           </div>
 
-          <div className="flex flex-col">
-            <label
-              htmlFor="password"
-              className="mb-2 font-[poppins] font-semibold text-[#000091]"
-            >
-              Mot de passe
-            </label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              required
-              className="w-full rounded-xl border border-gray-300 px-4 py-2 font-[poppins] focus:border-[#000091] focus:ring-2 focus:ring-[#000091] outline-none transition"
-            />
-<div className="mt-2 text-right">
-  <button
-    type="button"
-    onClick={() => router.push("/forgot-password")}
-    className="text-sm font-[poppins] font-medium text-[#000091] hover:text-[#ff6400] transition"
-  >
-    Mot de passe oublié ?
-  </button>
-</div>
-
-
-          </div>
-
           <button
             type="submit"
             disabled={loading}
             className="w-full rounded-xl bg-[#000091] text-white font-[poppins] font-semibold py-3 shadow-lg hover:bg-[#0000cc] transition disabled:opacity-50"
           >
-            {loading ? "Connexion..." : "Se connecter"}
+            {loading ? "Envoi..." : "Envoyer le lien"}
           </button>
         </form>
       </div>
