@@ -66,9 +66,31 @@ export default function DashboardAdminPage() {
     document.body.removeChild(link);
   };
 
-  const handleDecision = (id: number, decision: string) => {
-    console.log(id, decision);
-  };
+const handleDecision = async (id: number, decision: string) => {
+  try {
+    const res = await fetch("/api/update-demande", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id_demande: id, decision }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.error || "Erreur inconnue");
+
+    // ✅ Met à jour l’état local pour refléter la décision
+    setDemandes((prev) =>
+      prev.map((d) =>
+        d.id_demande === id ? { ...d, statut_demande: decision } : d
+      )
+    );
+
+    alert(`Demande ${decision.toLowerCase()} avec succès !`);
+  } catch (err: any) {
+    alert("❌ " + err.message);
+  }
+};
+
 
   // Carte solde améliorée
   const soldeCard = (title: string, value: number, btnText: string, unit: string, color: string) => (
