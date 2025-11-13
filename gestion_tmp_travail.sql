@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1
--- Généré le : ven. 10 oct. 2025 à 11:35
+-- Généré le : jeu. 13 nov. 2025 à 09:12
 -- Version du serveur : 10.4.32-MariaDB
 -- Version de PHP : 8.2.12
 
@@ -45,16 +45,17 @@ CREATE TABLE `demande` (
   `date_demande` date NOT NULL,
   `date_debut` date NOT NULL,
   `date_fin` date NOT NULL,
-  `statut_demande` varchar(50) DEFAULT NULL
+  `statut_demande` varchar(50) DEFAULT NULL,
+  `justificatif` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Déchargement des données de la table `demande`
 --
 
-INSERT INTO `demande` (`id_demande`, `id_user`, `type`, `date_demande`, `date_debut`, `date_fin`, `statut_demande`) VALUES
-(4, 3, 'conge', '2025-10-10', '2025-09-30', '2025-10-16', 'en attente'),
-(5, 2, 'maladie', '2025-10-10', '2025-10-01', '2025-10-30', 'en attente');
+INSERT INTO `demande` (`id_demande`, `id_user`, `type`, `date_demande`, `date_debut`, `date_fin`, `statut_demande`, `justificatif`) VALUES
+(4, 3, 'conge', '2025-10-10', '2025-09-30', '2025-10-16', 'en attente', ''),
+(5, 2, 'maladie', '2025-10-10', '2025-10-01', '2025-10-30', 'en attente', '');
 
 -- --------------------------------------------------------
 
@@ -105,9 +106,9 @@ CREATE TABLE `user` (
 --
 
 INSERT INTO `user` (`id_user`, `nom`, `prenom`, `mail`, `statut`, `poste`, `date_entree`, `solde_conge`, `solde_hsup`, `photo`, `mdp`) VALUES
-(1, 'Letellier', 'Ioni', 'ioni.letell@gmail.com', 'au travail', 'admin', '2024-09-09', 25, 10, 'gestion_tmp_travail/app/uploads/linkedin.jpg', 'Ioni2012$'),
-(2, 'user', 'user', 'ioio@ze-com.com', 'au travail', 'RH', '2024-09-09', 25, 10, 'uploads/default.png', 'root'),
-(3, 'user', 'user', 'user@gmail.com', 'au travail', 'salarié', '2024-09-09', 10, 20, 'uploads/default.png', 'root');
+(1, 'Letellier', 'Ioni', 'ioni.letell@gmail.com', 'au travail', 'admin', '2024-09-09', 25, 10, 'gestion_tmp_travail/app/uploads/linkedin.jpg', '$2a$10$2aI9hK3hJ9vZ1BzLgWjWQe0xLcn9rx1YwBjvBzQDz/N9m9bE1uCaK\n'),
+(2, 'user', 'user', 'ioio@ze-com.com', 'au travail', 'RH', '2024-09-09', 25, 10, 'uploads/default.png', '$2b$10$41gSSwdVHBgMzZjQjE8nUuefiZw4YfyhMs3LcfXYuXXfa/4D1f.zS'),
+(3, 'user', 'user', 'user@gmail.com', 'au travail', 'salarié', '2024-09-09', 10, 20, 'uploads/default.png', '$2b$10$sEeqaD/YC314iwretl.vgOzVagSeHKOG.ciiLOsfa7LSC4bdXEZzm');
 
 --
 -- Index pour les tables déchargées
