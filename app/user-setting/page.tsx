@@ -152,11 +152,9 @@ export default function UserSettingPage() {
                   <td className="border px-4 py-2">{u.poste}</td>
                   <td className="border px-4 py-2 text-center">
                     {u.solde_hsup}h
-                    <Button className="ml-2 text-sm" onClick={() => handleUpdateField(u.id_user, "solde_hsup")}>Modifier</Button>
                   </td>
                   <td className="border px-4 py-2 text-center">
                     {u.solde_conge} jours
-                    <Button className="ml-2 text-sm" onClick={() => handleUpdateField(u.id_user, "solde_conge")}>Modifier</Button>
                   </td>
                   <td className="border px-4 py-2 text-center">
                     <Button variant="outline" className="text-[#000091]" onClick={() => openEditModal(u)}>Détails / Modifier</Button>
