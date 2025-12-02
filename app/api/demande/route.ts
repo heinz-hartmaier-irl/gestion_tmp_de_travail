@@ -53,7 +53,7 @@ export async function POST(req: Request) {
     });
 
     await connection.execute(
-      "INSERT INTO demande (id_user, type, date_demande, date_debut, date_fin, statut_demande, justificatif) VALUES (?, ?, NOW(), ?, ?, ?, ?)",
+      "INSERT INTO demande (id_user, `type`, date_demande, date_debut, date_fin, statut_demande, justificatif) VALUES (?, ?, NOW(), ?, ?, ?, ?)",
       [userId, type, startDate, endDate, "en attente", filePath]
     );
 

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1
--- Généré le : jeu. 13 nov. 2025 à 09:12
+-- Généré le : mar. 02 déc. 2025 à 13:55
 -- Version du serveur : 10.4.32-MariaDB
 -- Version de PHP : 8.2.12
 
@@ -60,6 +60,37 @@ INSERT INTO `demande` (`id_demande`, `id_user`, `type`, `date_demande`, `date_de
 -- --------------------------------------------------------
 
 --
+-- Structure de la table `historique`
+--
+
+CREATE TABLE `historique` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `table_name` varchar(100) NOT NULL,
+  `record_id` int(11) NOT NULL,
+  `action` varchar(50) NOT NULL,
+  `field_name` varchar(100) DEFAULT NULL,
+  `old_value` text DEFAULT NULL,
+  `new_value` text DEFAULT NULL,
+  `message` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Déchargement des données de la table `historique`
+--
+
+INSERT INTO `historique` (`id`, `user_id`, `table_name`, `record_id`, `action`, `field_name`, `old_value`, `new_value`, `message`, `created_at`) VALUES
+(1, 2, 'user', 2, 'UPDATE', 'nom', 'Sam', 'Sam', 'Modification de nom de Sam à Sam', '2025-12-02 12:54:29'),
+(2, 2, 'user', 2, 'UPDATE', 'prenom', 'Arch', 'Arch', 'Modification de prenom de Arch à Arch', '2025-12-02 12:54:29'),
+(3, 2, 'user', 2, 'UPDATE', 'poste', 'RH', 'RH', 'Modification de poste de RH à RH', '2025-12-02 12:54:29'),
+(4, 2, 'user', 2, 'UPDATE', 'mail', 'ioio@ze-com.com', 'ioio@ze-com.com', 'Modification de mail de ioio@ze-com.com à ioio@ze-com.com', '2025-12-02 12:54:29'),
+(5, 2, 'user', 2, 'UPDATE', 'solde_hsup', '10', '10', 'Modification de solde_hsup de 10 à 10', '2025-12-02 12:54:29'),
+(6, 2, 'user', 2, 'UPDATE', 'solde_conge', '25', '25', 'Modification de solde_conge de 25 à 25', '2025-12-02 12:54:29');
+
+-- --------------------------------------------------------
+
+--
 -- Structure de la table `hsup_spec`
 --
 
@@ -107,7 +138,7 @@ CREATE TABLE `user` (
 
 INSERT INTO `user` (`id_user`, `nom`, `prenom`, `mail`, `statut`, `poste`, `date_entree`, `solde_conge`, `solde_hsup`, `photo`, `mdp`) VALUES
 (1, 'Letellier', 'Ioni', 'ioni.letell@gmail.com', 'au travail', 'admin', '2024-09-09', 25, 10, 'gestion_tmp_travail/app/uploads/linkedin.jpg', '$2a$10$2aI9hK3hJ9vZ1BzLgWjWQe0xLcn9rx1YwBjvBzQDz/N9m9bE1uCaK\n'),
-(2, 'user', 'user', 'ioio@ze-com.com', 'au travail', 'RH', '2024-09-09', 25, 10, 'uploads/default.png', '$2b$10$41gSSwdVHBgMzZjQjE8nUuefiZw4YfyhMs3LcfXYuXXfa/4D1f.zS'),
+(2, 'Sam', 'Arch', 'ioio@ze-com.com', 'au travail', 'RH', '2024-09-09', 25, 10, 'uploads/default.png', '$2b$10$41gSSwdVHBgMzZjQjE8nUuefiZw4YfyhMs3LcfXYuXXfa/4D1f.zS'),
 (3, 'user', 'user', 'user@gmail.com', 'au travail', 'salarié', '2024-09-09', 10, 20, 'uploads/default.png', '$2b$10$sEeqaD/YC314iwretl.vgOzVagSeHKOG.ciiLOsfa7LSC4bdXEZzm');
 
 --
@@ -126,6 +157,12 @@ ALTER TABLE `conges_spec`
 ALTER TABLE `demande`
   ADD PRIMARY KEY (`id_demande`),
   ADD KEY `id_user` (`id_user`);
+
+--
+-- Index pour la table `historique`
+--
+ALTER TABLE `historique`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Index pour la table `hsup_spec`
@@ -155,6 +192,12 @@ ALTER TABLE `user`
 --
 ALTER TABLE `demande`
   MODIFY `id_demande` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT pour la table `historique`
+--
+ALTER TABLE `historique`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT pour la table `user`

@@ -1,7 +1,8 @@
 import mysql from "mysql2/promise";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, context: any) {
+  const { params } = await context;
   const userId = parseInt(params.id);
   if (isNaN(userId)) return NextResponse.json({ success: false, error: "ID utilisateur invalide" }, { status: 400 });
 
@@ -36,7 +37,7 @@ const oldData = rows[0];
 
     await connection.execute(`UPDATE user SET ${updates.join(", ")} WHERE id_user = ?`, [...values, userId]);
 
-    const currentUserId = userId; // <-- à remplacer par l'ID de l'utilisateur connecté
+    const currentUserId = userId; 
 for (let i = 0; i < updates.length; i++) {
   const field = allowedFields[i];
   if (field in body) {

@@ -24,6 +24,7 @@ const demandeTypes = [
   { value: "conge", label: "Congé" },
   { value: "maladie", label: "Arrêt maladie" },
   { value: "hsup", label: "Heures supplémentaires" },
+  { value: "congespecifique", label: "Congé spécifique"},
 ];
 
 export default function DemandesPage() {
@@ -66,11 +67,14 @@ export default function DemandesPage() {
     formData.append("endDate", endDate.toISOString());
 
     // Gestion dynamique du justificatif
-    if (selectedType === "hsup" && typeof justificatif === "string") {
-      formData.append("justificatif", justificatif); // texte
-    } else if (selectedType === "maladie" && justificatif instanceof File) {
-      formData.append("justificatif", justificatif); // fichier
-    }
+        if (selectedType === "maladie" && justificatif instanceof File) {
+          formData.append("justificatif", justificatif); // fichier
+        } else if (
+          (selectedType === "hsup" || selectedType === "conge_specifique") &&
+          justificatif
+        ) {
+          formData.append("justificatif", justificatif.toString()); // texte
+        }
     // pour congé, rien n'est ajouté
 
     try {
@@ -127,7 +131,7 @@ export default function DemandesPage() {
                           key={t.value}
                           onSelect={() => {
                             setSelectedType(t.value);
-                            setJustificatif(null); // reset le justificatif à chaque changement
+                            setJustificatif(null); 
                             setOpenType(false);
                           }}
                         >
@@ -158,26 +162,31 @@ export default function DemandesPage() {
               <Label htmlFor="justificatif" className="font-[modak] text-gray-700">
                 Justificatif
               </Label>
-
-              {selectedType === "hsup" ? (
-                <Input
-                  id="justificatif_hsup"
-                  type="text"
-                  placeholder="Indiquez la nature des heures supplémentaires"
-                  value={typeof justificatif === "string" ? justificatif : ""}
-                  onChange={(e) => setJustificatif(e.target.value)}
-                  className="w-3/4 mt-2"
-                />
-              ) : selectedType === "conge" ? (
-                <span className="text-gray-500 mt-2">Pas de justificatif nécessaire pour les congés</span>
-              ) : (
-                <Input
-                  id="justificatif_file"
-                  type="file"
-                  onChange={handleFileChange}
-                  className="w-3/4 mt-2"
-                />
-              )}
+                {selectedType === "hsup" || selectedType === "conge_specifique" ? (
+                  <Input
+                    id="justificatif_texte"
+                    type="text"
+                    placeholder={
+                      selectedType === "hsup"
+                        ? "Indiquez la nature des heures supplémentaires"
+                        : "Indiquez le type de congé spécifique"
+                    }
+                    value={typeof justificatif === "string" ? justificatif : ""}
+                    onChange={(e) => setJustificatif(e.target.value)}
+                    className="w-3/4 mt-2 placeholder-white text-black"
+                  />
+                ) : selectedType === "conge" ? (
+                  <span className="text-gray-500 mt-2">
+                    Pas de justificatif nécessaire pour les congés
+                  </span>
+                ) : (
+                  <Input
+                    id="justificatif_file"
+                    type="file"
+                    onChange={handleFileChange}
+                    className="w-3/4 mt-2"
+                  />
+                )}
             </div>
 
             {/* Bouton d’envoi */}

@@ -8,7 +8,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    // 🔐 Récupération du token depuis le cookie
     const cookieHeader = req.headers.cookie || "";
     const match = cookieHeader.match(/(^|;)\s*token=([^;]+)/);
     const token = match ? match[2] : null;
