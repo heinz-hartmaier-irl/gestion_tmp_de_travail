@@ -10,7 +10,7 @@ export async function PATCH(req: NextRequest, context: any) {
     const body = await req.json();
 
     // Liste des champs autorisés à être mis à jour
-    const allowedFields = ["nom", "prenom", "poste", "mail", "solde_hsup", "solde_conge", "mdp"];
+    const allowedFields = ["nom", "prenom", "poste", "mail", "solde_hsup", "jours_conge_pris", "mdp"];
     const updates: string[] = [];
     const values: any[] = [];
 
@@ -38,27 +38,28 @@ const oldData = rows[0];
     await connection.execute(`UPDATE user SET ${updates.join(", ")} WHERE id_user = ?`, [...values, userId]);
 
     const currentUserId = userId; 
-for (let i = 0; i < updates.length; i++) {
-  const field = allowedFields[i];
-  if (field in body) {
-    const oldValue = oldData[field];
-    const newValue = body[field];
-    await connection.execute(
-      `INSERT INTO historique (user_id, table_name, record_id, action, field_name, old_value, new_value, message)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        currentUserId,
-        'user',
-        userId,
-        'UPDATE',
-        field,
-        oldValue,
-        newValue,
-        `Modification de ${field} de ${oldValue} à ${newValue}`
-      ]
-    );
-  }
-}
+        for (const field of allowedFields) {
+          if (field in body) {
+            const oldValue = oldData[field];
+            const newValue = body[field];
+
+            await connection.execute(
+              `INSERT INTO historique 
+              (user_id, table_name, record_id, action, field_name, old_value, new_value, message)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+              [
+                userId,
+                'user',
+                userId,
+                'UPDATE',
+                field,
+                oldValue,
+                newValue,
+                `Modification de ${field} de ${oldValue} à ${newValue}`
+              ]
+            );
+          }
+        }
     await connection.end();
     
 

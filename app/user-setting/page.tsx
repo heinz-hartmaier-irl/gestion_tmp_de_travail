@@ -10,6 +10,7 @@ interface User {
   mail: string;
   solde_conge: number;
   solde_hsup: number;
+  jours_conge_pris: number,
 }
 
 interface UserHistory {
@@ -90,6 +91,7 @@ export default function UserSettingPage() {
       mail: user.mail,
       solde_hsup: user.solde_hsup,
       solde_conge: user.solde_conge,
+      jour_conge_pris: user.jours_conge_pris,
       password: "",
     });
   };
@@ -141,6 +143,7 @@ export default function UserSettingPage() {
                 <th className="border px-4 py-2 text-left">Poste</th>
                 <th className="border px-4 py-2 text-center">Heures supp</th>
                 <th className="border px-4 py-2 text-center">Congés restants</th>
+                <th className="border px-4 py-2 text-center">Congés posés</th>
                 <th className="border px-4 py-2 text-center">Actions</th>
               </tr>
             </thead>
@@ -157,6 +160,9 @@ export default function UserSettingPage() {
                     {u.solde_conge} jours
                   </td>
                   <td className="border px-4 py-2 text-center">
+                    {u.jours_conge_pris} jours
+                  </td>
+                  <td className="border px-4 py-2 text-center">
                     <Button variant="outline" className="text-[#000091]" onClick={() => openEditModal(u)}>Détails / Modifier</Button>
                   </td>
                 </tr>
@@ -170,7 +176,7 @@ export default function UserSettingPage() {
             <div className="bg-blue-800 p-6 rounded-lg w-96 max-h-[80vh] overflow-y-auto">
               <h2 className="text-xl font-bold mb-4">Modifier {editingUser.prenom} {editingUser.nom}</h2>
               <div className="flex flex-col space-y-2">
-                {["nom", "prenom", "poste", "mail", "solde_hsup", "solde_conge", "password"].map(field => (
+                {["nom", "prenom", "poste", "mail", "solde_hsup", "solde_conge","jours_conge_pris", "password",].map(field => (
                   <input
                     key={field}
                     name={field}
